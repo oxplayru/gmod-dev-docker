@@ -1,5 +1,4 @@
 FROM ubuntu:18.04
-ENTRYPOINT ["/usr/bin/script", "-c"]
 
 MAINTAINER Alex Mantis "bamttup@gmail.com"
 
@@ -41,4 +40,5 @@ ENV MAP="gm_construct"
 ENV TERM=xterm 
 ENV LD_LIBRARY_PATH=".:/gmod-base/bin:$LD_LIBRARY_PATH"
 
-CMD ["if [ $FS == 'union' ]; then unionfs-fuse -o cow /gmod-volume=RW:/gmod-base=RO /gmod-union; fi && /gmod-${FS}/srcds_linux -game garrysmod -norestart ${ARGS} -port ${PORT} +maxplayers ${MAXPLAYERS} +hostname ${G_HOSTNAME} +gamemode ${GAMEMODE}  +map ${MAP}"]
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["if [ $FS == 'union' ]; then unionfs-fuse -o cow /gmod-volume=RW:/gmod-base=RO /gmod-union; fi && /usr/bin/script -c '/gmod-${FS}/srcds_linux -game garrysmod -norestart ${ARGS} -port ${PORT} +maxplayers ${MAXPLAYERS} +hostname ${G_HOSTNAME} +gamemode ${GAMEMODE}  +map ${MAP}'"]
