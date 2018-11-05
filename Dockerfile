@@ -15,6 +15,16 @@ RUN tar -xvzf steamcmd_linux.tar.gz
 RUN mkdir /gmod-base
 RUN /steamcmd/steamcmd.sh +login anonymous +force_install_dir /gmod-base +app_update 4020 validate +quit
 
+# ----------------------
+# Setup Volume and Union
+# ----------------------
+
+RUN mkdir /gmod-volume
+VOLUME /gmod-volume
+RUN mkdir /gmod-union
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install unionfs-fuse
+ENV FS=base
+
 # ---------------
 # Setup Container
 # ---------------
@@ -31,4 +41,4 @@ ENV MAP="gm_construct"
 ENV TERM=xterm 
 ENV LD_LIBRARY_PATH=".:/gmod-base/bin:$LD_LIBRARY_PATH"
 
-CMD ["/gmod-base/srcds_linux -game garrysmod -norestart ${ARGS} -port ${PORT} +maxplayers ${MAXPLAYERS} +hostname ${G_HOSTNAME} +gamemode ${GAMEMODE}  +map ${MAP}"]
+CMD ["if [ $FS == 'union' ]; then unionfs-fuse -o cow /gmod-volume=RW:/gmod-base=RO /gmod-union; fi && /gmod-${FS}/srcds_linux -game garrysmod -norestart ${ARGS} -port ${PORT} +maxplayers ${MAXPLAYERS} +hostname ${G_HOSTNAME} +gamemode ${GAMEMODE}  +map ${MAP}"]
